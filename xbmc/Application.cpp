@@ -1059,8 +1059,16 @@ bool CApplication::InitDirectoriesLinux()
       strTempPath = getenv("XBMC_TEMP");
     CSpecialProtocol::SetTempPath(strTempPath);
 
-    URIUtils::AddSlashAtEnd(strTempPath);
-    g_advancedSettings.m_logFolder = strTempPath;
+    // Log file storage location
+    #if defined(TARGET_ANDROID)
+        CStdString strLogPath = userHome; //for Android, store it inside of XBMC_HOME (accessible with no root access)
+        strLogPath = URIUtils::AddFileToFolder(strLogPath, ".xbmc/logs");
+        URIUtils::AddSlashAtEnd(strLogPath);
+        g_advancedSettings.m_logFolder = strLogPath;
+    #else
+        URIUtils::AddSlashAtEnd(strTempPath); //for rest POSIX systems, store log in XBMC_TEMP
+        g_advancedSettings.m_logFolder = strTempPath;
+    #endif
 
     CreateUserDirs();
 
